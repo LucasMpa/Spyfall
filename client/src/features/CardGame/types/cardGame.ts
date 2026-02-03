@@ -1,5 +1,5 @@
 
-import { GameInfo } from '@/globalTypes/gameInfo';
+import { GameInfo } from '@/global/gameInfo';
 
 interface CardGameProps {
     data: GameInfo,

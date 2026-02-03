@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { Bounce, toast, ToastContainer } from 'react-toastify';
-import { Player, GameInfo } from '@/globalTypes/gameInfo';
+import { Player, GameInfo } from '@/global/gameInfo';
 import { Login } from '@/features/Login';
 import { Lobby } from '@/features/Lobby';
 import { CardGame } from '@/features/CardGame';

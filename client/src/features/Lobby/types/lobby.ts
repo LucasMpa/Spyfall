@@ -1,4 +1,4 @@
-import { Player } from '@/globalTypes/gameInfo';
+import { Player } from '@/global/gameInfo';
 
 interface LobbyProps {
   roomCode: string;
