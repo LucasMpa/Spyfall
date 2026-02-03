@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { Player, GameInfo } from '../../server/src/types';
 import { Bounce, toast, ToastContainer } from 'react-toastify';
+import { FaRegCopy } from 'react-icons/fa';
 
 const serverIP = window.location.hostname;
 const socket: Socket = io(`http://${serverIP}:3001`);
@@ -13,6 +14,8 @@ function App() {
   const [gameData, setGameData] = useState<GameInfo | null>(null);
   const [isJoined, setIsJoined] = useState(false);
   const [isHost, setIsHost] = useState(false);
+
+
 
   useEffect(() => {
     socket.on("room_created", (code: string) => {
@@ -62,23 +65,30 @@ function App() {
     socket.emit("start_game", roomCode);
   };
 
+const copyCode = async () => {
+  try {
+    await navigator.clipboard.writeText(roomCode);
+    toast.success("Código copiado para a área de transferência!");
+  } catch (err) {
+    const textArea = document.createElement("textarea");
+    textArea.value = roomCode;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      toast.success("Código copiado!");
+    } catch (err) {
+      toast.error("Não foi possível copiar o código.");
+    }
+    document.body.removeChild(textArea);
+  }
+};
+
 
   if (!isJoined) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6 bg-slate-950">
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick={false}
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
-          transition={Bounce}
-        />
+       
         <div className="text-center mb-10">
           <h1 className="text-6xl font-black text-spy-red italic tracking-tighter uppercase drop-shadow-[0_0_15px_rgba(231,76,60,0.4)]">
             Spyfall
@@ -159,12 +169,27 @@ function App() {
     <div className="flex flex-col items-center p-6 min-h-screen max-w-2xl mx-auto">
       <header className="w-full flex justify-between items-center mt-4 mb-12">
         <h1 className="text-2xl font-black text-spy-red italic uppercase">Spyfall</h1>
-        <div className="bg-slate-900 border border-slate-800 px-4 py-2 rounded-full">
+        <div className="bg-slate-900 border border-slate-800 px-4 w-40 py-2 rounded-full flex items-center gap-[6px]">
           <span className="text-slate-500 text-xs font-bold mr-2 uppercase tracking-tighter">Sala</span>
           <span className="font-mono text-lg font-bold text-white">{roomCode}</span>
+          <span onClick={copyCode} className="hover:text-spy-red active:scale-90 transition-all">
+            <FaRegCopy size={20} className="cursor-pointer" />
+          </span>
         </div>
       </header>
-
+       <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="dark"
+          transition={Bounce}
+        />
       <main className="w-full flex-grow">
         <div className="flex justify-between items-end mb-4 px-2">
           <h3 className="text-xl font-bold">Agentes Conectados</h3>
