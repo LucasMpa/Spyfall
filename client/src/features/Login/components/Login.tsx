@@ -11,8 +11,8 @@ export const Login = ({ username, setUsername, roomCode, setRoomCode, createRoom
 
     <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl shadow-2xl w-full max-w-md">
       <input
-        className="w-full bg-slate-800 border border-slate-700 p-4 rounded-xl mb-6 text-white outline-none focus:ring-2 focus:ring-spy-red"
-        placeholder="Seu codinome"
+        className="w-full bg-slate-800 border border-slate-700 p-4 rounded-xl mb-6 text-center text-white outline-none focus:ring-2 focus:ring-spy-red"
+        placeholder="SEU CODINOME"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
