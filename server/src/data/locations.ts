@@ -35,5 +35,21 @@ export const LOCATIONS: Location[] = [
     {
         name: "Delegacia",
         roles: ["Delegado", "Investigador", "Escrivão", "Policial Militar", "Detento", "Advogado"]
-    }
+    },
+    {
+        name: "Praia",
+        roles: ["Garçom de Praia", "Surfista", "Salva-vidas", "Trombadinha", "Banhista", "Fotográfo", "Sorveteiro"]
+    },
+    {
+        name: "Teatro",
+        roles: ["Recepcionista", "Assistente de Palco", "Caixa", "Espectador", "Diretor", "Ator", "Figurante"]
+    },
+    {
+        name: "Cassino",
+        roles: ["Bartender", "Chefe da Segurança", "Segurança", "Gerente", "Malandro", "Mesário", "Apostador"]
+    },
+    {
+        name: "Circo",
+        roles: ["Acrobata", "Domador", "Mágico", "Espectador", "Engolidor de Espadas", "Palhaço", "Malabarista"]
+    },
 ];
