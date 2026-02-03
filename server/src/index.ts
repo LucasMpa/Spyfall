@@ -22,25 +22,25 @@ let timerInterval: NodeJS.Timeout;
 
 io.on("connection", (socket: Socket) => {
     socket.on("join_room", ({ roomCode, username }: { roomCode: string, username: string }) => {
-    const code = roomCode.toUpperCase();
-    const room = rooms.get(code);
+        const code = roomCode.toUpperCase();
+        const room = rooms.get(code);
 
-    if (!room) {
-        return socket.emit("error_message", "Sala não encontrada.");
-    }
+        if (!room) {
+            return socket.emit("error_message", "Sala não encontrada.");
+        }
 
-    if (room.isStarted) {
-        return socket.emit("error_message", "O jogo já começou nesta sala.");
-    }
+        if (room.isStarted) {
+            return socket.emit("error_message", "O jogo já começou nesta sala.");
+        }
 
-    socket.join(code);
-    const newPlayer: Player = { id: socket.id, username, isSpy: false };
-    room.players.push(newPlayer);
+        socket.join(code);
+        const newPlayer: Player = { id: socket.id, username, isSpy: false };
+        room.players.push(newPlayer);
 
-    socket.emit("room_joined", code);
+        socket.emit("room_joined", code);
 
-    io.to(code).emit("update_players", room.players);
-});
+        io.to(code).emit("update_players", room.players);
+    });
 
     socket.on("create_room", ({ username }: { username: string }) => {
         const roomCode = Math.random().toString(36).substring(2, 7).toUpperCase();
@@ -68,42 +68,59 @@ io.on("connection", (socket: Socket) => {
             return;
         }
 
-        if (room.players.length >= 3) {
-            room.isStarted = true;
-            const assignments = setupGame(room.players);
-
-            room.players.forEach((player) => {
-                const info = assignments.get(player.id);
-                if (info) {
-                    io.to(player.id).emit("game_info", info);
-                }
-            });
-            io.to(roomCode).emit("game_state_changed", { isStarted: true });
-        } else {
+        if (room.players.length < 3) {
             socket.emit("error_message", "Mínimo de 3 jogadores necessário.");
+            return;
         }
 
-        timeLeft = 480; 
-        clearInterval(timerInterval);
+        room.isStarted = true;
+        room.timeLeft = 480; 
 
-        timerInterval = setInterval(() => {
-            timeLeft--;
-            io.to(roomCode).emit("timer_update", timeLeft);
+        const assignments = setupGame(room.players);
 
-            if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            io.to(roomCode).emit("game_over", "O tempo acabou!");
+        room.players.forEach((player) => {
+            const info = assignments.get(player.id);
+            if (info) {
+                io.to(player.id).emit("game_info", info);
+            }
+        });
+
+        io.to(roomCode).emit("game_state_changed", { isStarted: true });
+
+        if (room.timer) {
+            clearInterval(room.timer);
+        }
+
+        room.timer = setInterval(() => {
+            if (room.timeLeft !== undefined) {
+                room.timeLeft--;
+
+                io.to(roomCode).emit("timer_update", room.timeLeft);
+
+                if (room.timeLeft <= 0) {
+                    if (room.timer) clearInterval(room.timer);
+                    room.isStarted = false;
+                    io.to(roomCode).emit("game_over", "O tempo acabou! O espião venceu ou deve ser revelado.");
+                }
             }
         }, 1000);
+
+        console.log(`Missão iniciada na sala: ${roomCode}`);
     });
 
     socket.on("disconnect", () => {
         rooms.forEach((room, roomCode) => {
             const index = room.players.findIndex(p => p.id === socket.id);
+
             if (index !== -1) {
                 room.players.splice(index, 1);
                 io.to(roomCode).emit("update_players", room.players);
-                if (room.players.length === 0) rooms.delete(roomCode);
+
+                if (room.players.length === 0) {
+                    if (room.timer) clearInterval(room.timer);
+                    rooms.delete(roomCode);
+                    console.log(`Sala ${roomCode} removida e timer limpo.`);
+                }
             }
         });
     });

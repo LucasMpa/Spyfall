@@ -71,33 +71,42 @@ function App() {
     socket.emit("start_game", roomCode);
   };
 
-const copyCode = () => {
-  navigator.clipboard.writeText(roomCode)
-    .then(() => toast.success("Código copiado!"))
-    .catch(() => {
-      const input = document.createElement("input");
-      input.value = roomCode;
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand("copy");
-      document.body.removeChild(input);
-      toast.success("Código copiado!");
-    });
-};
+  const copyCode = () => {
+    navigator.clipboard.writeText(roomCode)
+      .then(() => toast.success("Código copiado!"))
+      .catch(() => {
+        const input = document.createElement("input");
+        input.value = roomCode;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand("copy");
+        document.body.removeChild(input);
+        toast.success("Código copiado!");
+      });
+  };
+
+  const onBack = () => {
+    setGameData(null);
+    if(isHost) socket.off("room_created");
+    setIsJoined(false)
+  }
 
  return (
     <>
       <ToastContainer position="top-right" theme="dark" transition={Bounce} />
       {!isJoined ? (
         <Login 
-          username={username} setUsername={setUsername}
-          roomCode={roomCode} setRoomCode={setRoomCode}
-          createRoom={createRoom} joinRoom={joinRoom}
+          username={username} 
+          setUsername={setUsername}
+          roomCode={roomCode} 
+          setRoomCode={setRoomCode}
+          createRoom={createRoom} 
+          joinRoom={joinRoom}
         />
       ) : gameData ? (
         <CardGame 
           data={gameData} 
-          onBack={() => setGameData(null)} 
+          onBack={onBack} 
           seconds={seconds}
         />
       ) : (

@@ -11,6 +11,8 @@ export interface Room {
     isStarted: boolean;
     location?: string;
     hostId: string;
+    timer?: NodeJS.Timeout;
+    timeLeft?: number;
 }
 
 export interface GameInfo {
