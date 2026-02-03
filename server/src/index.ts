@@ -17,6 +17,8 @@ const io = new Server(httpServer, {
 });
 
 const rooms = new Map<string, Room>();
+let timeLeft = 480;
+let timerInterval: NodeJS.Timeout;
 
 io.on("connection", (socket: Socket) => {
     socket.on("join_room", ({ roomCode, username }: { roomCode: string, username: string }) => {
@@ -31,15 +33,12 @@ io.on("connection", (socket: Socket) => {
         return socket.emit("error_message", "O jogo já começou nesta sala.");
     }
 
-    // Adiciona ao socket.io e à nossa lista lógica
     socket.join(code);
     const newPlayer: Player = { id: socket.id, username, isSpy: false };
     room.players.push(newPlayer);
 
-    // IMPORTANTE: Emite room_joined apenas para QUEM ENTROU
     socket.emit("room_joined", code);
 
-    // Atualiza a lista para TODOS na sala
     io.to(code).emit("update_players", room.players);
 });
 
@@ -53,7 +52,7 @@ io.on("connection", (socket: Socket) => {
             code: roomCode,
             players: [newPlayer],
             isStarted: false,
-            hostId: socket.id // O socket atual é o dono
+            hostId: socket.id
         });
 
         socket.emit("room_created", roomCode);
@@ -61,31 +60,42 @@ io.on("connection", (socket: Socket) => {
     });
 
     socket.on("start_game", (roomCode: string) => {
-    const room = rooms.get(roomCode);
+        const room = rooms.get(roomCode);
 
-    if (!room) return;
+        if (!room) return;
+        if (room.hostId !== socket.id) {
+            socket.emit("error_message", "Apenas o dono da sala pode iniciar o jogo.");
+            return;
+        }
 
-    // VALIDAÇÃO DE DONO:
-    if (room.hostId !== socket.id) {
-        socket.emit("error_message", "Apenas o dono da sala pode iniciar o jogo.");
-        return;
-    }
+        if (room.players.length >= 3) {
+            room.isStarted = true;
+            const assignments = setupGame(room.players);
 
-    if (room.players.length >= 3) {
-        room.isStarted = true;
-        const assignments = setupGame(room.players);
+            room.players.forEach((player) => {
+                const info = assignments.get(player.id);
+                if (info) {
+                    io.to(player.id).emit("game_info", info);
+                }
+            });
+            io.to(roomCode).emit("game_state_changed", { isStarted: true });
+        } else {
+            socket.emit("error_message", "Mínimo de 3 jogadores necessário.");
+        }
 
-        room.players.forEach((player) => {
-            const info = assignments.get(player.id);
-            if (info) {
-                io.to(player.id).emit("game_info", info);
+        timeLeft = 480; 
+        clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            io.to(roomCode).emit("timer_update", timeLeft);
+
+            if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            io.to(roomCode).emit("game_over", "O tempo acabou!");
             }
-        });
-        io.to(roomCode).emit("game_state_changed", { isStarted: true });
-    } else {
-        socket.emit("error_message", "Mínimo de 3 jogadores necessário.");
-    }
-});
+        }, 1000);
+    });
 
     socket.on("disconnect", () => {
         rooms.forEach((room, roomCode) => {

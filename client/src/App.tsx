@@ -16,8 +16,7 @@ function App() {
   const [gameData, setGameData] = useState<GameInfo | null>(null);
   const [isJoined, setIsJoined] = useState(false);
   const [isHost, setIsHost] = useState(false);
-
-
+  const [seconds, setSeconds] = useState(480);
 
   useEffect(() => {
     socket.on("room_created", (code: string) => {
@@ -44,12 +43,17 @@ function App() {
       toast.error(msg);
     });
 
+    socket.on("timer_update", (time: number) => {
+      setSeconds(time);
+    });
+
     return () => {
       socket.off("room_created");
       socket.off("room_joined");
       socket.off("update_players");
       socket.off("game_info");
       socket.off("error_message");
+      socket.off("timer_update");
     };
   }, []);
 
@@ -91,7 +95,11 @@ const copyCode = () => {
           createRoom={createRoom} joinRoom={joinRoom}
         />
       ) : gameData ? (
-        <CardGame data={gameData} onBack={() => setGameData(null)} />
+        <CardGame 
+          data={gameData} 
+          onBack={() => setGameData(null)} 
+          seconds={seconds}
+        />
       ) : (
         <Lobby 
           roomCode={roomCode} 

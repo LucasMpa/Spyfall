@@ -25,7 +25,6 @@ export const Lobby = ({
         </div>
       </header>
 
-      {/* Lista de Jogadores */}
       <main className="w-full flex-grow">
         <div className="flex justify-between items-end mb-6 px-2">
           <div className="flex items-center gap-2">
