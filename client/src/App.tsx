@@ -3,7 +3,8 @@ import { io, Socket } from 'socket.io-client';
 import { Player, GameInfo } from '../../server/src/types';
 import { Bounce, toast, ToastContainer } from 'react-toastify';
 
-const socket: Socket = io("http://localhost:3001");
+const serverIP = window.location.hostname;
+const socket: Socket = io(`http://${serverIP}:3001`);
 
 function App() {
   const [username, setUsername] = useState('');
@@ -53,17 +54,6 @@ function App() {
   };
 
   const joinRoom = () => {
-    // toast('🦄 Wow so easy!', {
-    //   position: "top-right",
-    //   autoClose: 5000,
-    //   hideProgressBar: false,
-    //   closeOnClick: false,
-    //   pauseOnHover: true,
-    //   draggable: true,
-    //   progress: undefined,
-    //   theme: "dark",
-    //   transition: Bounce,
-    // });
     if (!username.trim() || !roomCode.trim()) return toast.error('Preencha codinome e código!');
     socket.emit("join_room", { roomCode, username });
   };
