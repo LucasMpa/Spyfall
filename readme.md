@@ -1,71 +1,74 @@
 # 🕵️ Spyfall Online - Real-Time Multiplayer
+A modern web implementation of the popular party game Spyfall. This project leverages WebSocket communication to provide a seamless, instant gaming experience across multiple devices.
 
-Uma implementação moderna e web do popular jogo de tabuleiro **Spyfall**. Este projeto utiliza comunicação via WebSockets para proporcionar uma experiência de jogo fluida e instantânea entre múltiplos dispositivos.
+# 🛠️ Tech Stack
+Built using a simple distributed architecture (Client-Server):
 
----
+## Frontend
 
-## 🛠️ Tecnologias Utilizadas
+React (Vite): Framework for a fast, reactive UI.
 
-O projeto foi construído utilizando uma arquitetura de sistemas distribuídos simples (Cliente-Servidor):
+Tailwind CSS v4: Next-gen utility-first styling for a sleek "Dark Mode" design.
 
-* **Frontend:**
-    * **React (Vite):** Framework para uma interface reativa e rápida.
-    * **Tailwind CSS v4:** Estilização utilitária de última geração para um design "Dark Mode".
-    * **Socket.io-client:** Comunicação bidirecional com o servidor.
-    * **TypeScript:** Garantia de tipos e segurança no código.
+Socket.io-client: Real-time bidirectional communication.
 
-* **Backend:**
-    * **Node.js & Express:** Servidor robusto para gerenciamento de rotas.
-    * **Socket.io:** Engine principal para gerenciamento de salas e eventos em tempo real.
-    * **TypeScript:** Tipagem compartilhada entre cliente e servidor.
+TypeScript: Type safety and predictable code behavior.
 
----
+## Backend
 
-## 🎮 Como o Jogo Funciona
+Node.js & Express: Robust server for route management.
 
-### Objetivo
-* **Para os Civis:** Descobrir quem é o espião através de perguntas e respostas antes que o tempo acabe.
-* **Para o Espião:** Tentar se misturar aos civis e descobrir em qual **Localização** o grupo está.
+Socket.io: Core engine for room management and real-time events.
 
-### Regras & Fluxo
-1.  **A Sala:** Um jogador cria uma sala e recebe um código único. Outros jogadores entram usando esse código.
-2.  **Início:** Quando o Host inicia a partida, o sistema sorteia aleatoriamente um **Local** (ex: Submarino, Estação Espacial) e um **Espião**.
-3.  **Papéis:** * Todos os civis recebem o nome do Local e um **Papel específico** (ex: no Submarino, um pode ser o Capitão, outro o Cozinheiro).
-    * O espião não sabe onde está, ele apenas sabe que é o espião.
-4.  **A Dinâmica:** Os jogadores fazem perguntas uns aos outros. 
-    * *Exemplo:* "Capitão, como está a vista da janela?"
-    * O espião deve responder com cuidado para não ser descoberto, enquanto tenta pescar pistas sobre o local.
+TypeScript: Shared types across client and server.
 
----
+# 🎮 How the Game Works
+Objective
+For Civilians: Unmask the spy through questions and answers before time runs out.
 
-## ⚙️ Arquitetura do Sistema
+For the Spy: Blend in with the civilians and figure out the secret Location.
 
-O sistema gerencia o estado do jogo inteiramente na memória do servidor para garantir que nenhum jogador consiga "hackear" a localização inspecionando o código do navegador (Client-side).
+Rules & Flow
+The Lobby: A player creates a room and receives a unique code. Others join using that code.
 
+The Start: When the Host starts the match, the system randomly picks a Location (e.g., Submarine, Space Station) and a Spy.
 
+Roles: * All civilians receive the Location name and a Specific Role (e.g., in the Submarine, one might be the Captain, another the Cook).
 
-### Principais Eventos Socket:
-* `create_room`: Gera um ID único e define o socket como Host.
-* `join_room`: Valida a existência da sala e adiciona o jogador ao array.
-* `start_game`: O servidor executa o algoritmo de sorteio e distribui `game_info` individuais e privados para cada socket.
+The spy doesn't know the location; they only know they are the spy.
 
----
+The Dynamic: Players take turns asking each other questions.
 
-## 🚀 Instalação
+Example: "Captain, how is the view from the window?"
 
-### Pré-requisitos
-* Node.js (v18 ou superior)
-* npm ou yarn
+The spy must answer carefully to avoid detection while fishing for clues about the location.
 
+# ⚙️ System Architecture
+The system manages the game state entirely in the server's memory. This ensures that no player can "hack" the location by inspecting the browser's source code (Client-side protection).
 
-## 🚀 Execução
+Key Socket Events:
+create_room: Generates a unique ID and sets the socket as the Host.
 
-### Servidor
-1. `cd server`
-2. `npm install`
-3. `npm run dev`
+join_room: Validates the room's existence and adds the player to the array.
 
-### Cliente
-1. `cd client`
-2. `npm install`
-3. `npm run dev` (Abra em http://localhost:3000)
+start_game: The server runs the randomization algorithm and broadcasts private game_info to each individual socket.
+
+## 🚀 Installation
+### Prerequisites
+- Node.js (v18 or higher)
+- npm or yarn
+
+## 🚀 Execution
+### Server
+```
+cd server
+npm install
+npm run dev
+```
+
+### Client
+```
+cd client
+npm install
+```
+npm run dev (Open at http://localhost:3000)
