@@ -49,7 +49,7 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds }) => {
                 <button
                   key={loc}
                   onClick={() => toggleLocation(loc)}
-                  className={`text-left px-4 py-3 rounded-xl border text-sm transition-all flex justify-center items-center ${isEliminated
+                  className={`text-left px-4 py-3 rounded-xl border text-sm transition-all cursor-pointer flex justify-center items-center ${isEliminated
                     ? 'bg-slate-950 border-slate-800 text-slate-700 line-through opacity-50'
                     : 'bg-slate-800/50 border-slate-700 text-slate-300 hover:border-spy-red'
                     }`}
@@ -66,7 +66,7 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds }) => {
         </div>
         }
 
-        <button onClick={onBack} className="mt-12 text-slate-500 hover:text-white uppercase text-xs font-bold underline underline-offset-8 transition-colors">
+        <button onClick={onBack} className="mt-12 text-slate-500 hover:text-white uppercase text-xs font-bold underline underline-offset-8 transition-colors cursor-pointer">
           Encerrar Partida
         </button>
       </div>

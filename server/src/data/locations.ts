@@ -25,10 +25,6 @@ export const LOCATIONS: Location[] = [
         roles: ["Chef", "Garçom", "Hostess", "Sommelier", "Lavadore de Pratos", "Cliente VIP"]
     },
     {
-        name: "Circo",
-        roles: ["Palhaço", "Acrobata", "Domador", "Mágico", "Vendedor de Pipoca", "Malabarista"]
-    },
-    {
         name: "Avião",
         roles: ["Piloto", "Comissário de Bordo", "Passageiro", "Copiloto", "Marechal do Ar", "Mecânico"]
     },
@@ -43,6 +39,10 @@ export const LOCATIONS: Location[] = [
     {
         name: "Teatro",
         roles: ["Recepcionista", "Assistente de Palco", "Caixa", "Espectador", "Diretor", "Ator", "Figurante"]
+    },
+    {
+        name: "Faculdade",
+        roles: ["Veterano", "Professor", "Reitor", "Psicólogo", "Zelador", "Calouro", "Faxineiro"]
     },
     {
         name: "Cassino",

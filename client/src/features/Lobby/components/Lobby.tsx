@@ -6,7 +6,8 @@ export const Lobby = ({
   copyCode, 
   players, 
   isHost, 
-  startGame, 
+  startGame,
+  onBack,
   socketId 
 }: LobbyProps) => {
   return (
@@ -15,17 +16,25 @@ export const Lobby = ({
         <h1 className="text-2xl font-black text-spy-red italic uppercase tracking-tighter">
           Spyfall
         </h1>
-        <div 
-          onClick={copyCode}
-          className="bg-slate-900 border border-slate-800 px-4 py-2 rounded-full flex items-center gap-3 cursor-pointer hover:border-spy-red transition-colors group"
-        >
-          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-tighter">Sala</span>
-          <span className="font-mono text-lg font-bold text-white">{roomCode}</span>
-          <FaRegCopy size={16} className="text-slate-500 group-hover:text-spy-red transition-colors" />
+        <div className='flex items-center gap-2'>
+          <button 
+              onClick={onBack}
+              className="px-4 py-2 bg-slate-800 hover:bg-red-900/40 text-slate-400 hover:text-red-500 border border-slate-700 rounded-full transition-all font-bold uppercase text-sm tracking-widest cursor-pointer"
+            >
+              Sair da Sala
+            </button>
+          <div 
+            onClick={copyCode}
+            className="bg-slate-900 border border-slate-800 px-4 py-2 rounded-full flex items-center gap-3 cursor-pointer hover:border-spy-red transition-colors group"
+          >
+            <span className="text-slate-500 text-[10px] font-bold uppercase tracking-tighter">Sala</span>
+            <span className="font-mono text-lg font-bold text-white">{roomCode}</span>
+            <FaRegCopy size={16} className="text-slate-500 group-hover:text-spy-red transition-colors" />
+          </div>
         </div>
       </header>
 
-      <main className="w-full flex-grow">
+      <main className="w-full grow">
         <div className="flex justify-between items-end mb-6 px-2">
           <div className="flex items-center gap-2">
             <FaUserSecret className="text-spy-red" />

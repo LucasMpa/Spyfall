@@ -22,24 +22,30 @@ let timerInterval: NodeJS.Timeout;
 
 io.on("connection", (socket: Socket) => {
     socket.on("join_room", ({ roomCode, username }: { roomCode: string, username: string }) => {
-        const code = roomCode.toUpperCase();
-        const room = rooms.get(code);
+        try {
+            const code = roomCode.toUpperCase();
+            const room = rooms.get(code);
 
-        if (!room) {
-            return socket.emit("error_message", "Sala não encontrada.");
+            if (!room) {
+                return socket.emit("error_message", "Sala não encontrada.");
+            }
+
+            if (room.isStarted) {
+                return socket.emit("error_message", "O jogo já começou nesta sala.");
+            }
+
+            socket.join(code);
+            const newPlayer: Player = { id: socket.id, username, isSpy: false };
+            room.players.push(newPlayer);
+
+            socket.emit("room_joined", code);
+
+            io.to(code).emit("update_players", room.players);
+        } catch (error) {
+            console.error('Erro no join_room', error)
+            socket.emit("error_message", "Dados inválidos enviados.")
         }
 
-        if (room.isStarted) {
-            return socket.emit("error_message", "O jogo já começou nesta sala.");
-        }
-
-        socket.join(code);
-        const newPlayer: Player = { id: socket.id, username, isSpy: false };
-        room.players.push(newPlayer);
-
-        socket.emit("room_joined", code);
-
-        io.to(code).emit("update_players", room.players);
     });
 
     socket.on("create_room", ({ username }: { username: string }) => {
@@ -59,6 +65,31 @@ io.on("connection", (socket: Socket) => {
         io.to(roomCode).emit("update_players", [newPlayer]);
     });
 
+    socket.on("leave_room", (roomCode: string) => {
+        const code = roomCode.toUpperCase();
+        const room = rooms.get(code);
+
+        if (room) {
+            room.players = room.players.filter(p => p.id !== socket.id);
+            socket.leave(code);
+
+            if (room.players.length === 0) {
+                if (room.timer) clearInterval(room.timer);
+                rooms.delete(code);
+            } else {
+                if (room.hostId === socket.id) {
+                    const nextPlayer = room.players[0];
+
+                    if (nextPlayer) {
+                        room.hostId = nextPlayer.id;
+                        io.to(code).emit("new_host", room.hostId);
+                    }
+                }
+                io.to(code).emit("update_players", room.players);
+            }
+        }
+    });
+
     socket.on("start_game", (roomCode: string) => {
         const room = rooms.get(roomCode);
 
@@ -74,7 +105,7 @@ io.on("connection", (socket: Socket) => {
         }
 
         room.isStarted = true;
-        room.timeLeft = 480; 
+        room.timeLeft = 480;
 
         const assignments = setupGame(room.players);
 
