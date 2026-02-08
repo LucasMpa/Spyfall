@@ -8,11 +8,7 @@ import { CardGame } from '@/features/CardGame';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getPersistedNameOnLocalStorage } from './utils/storageActions';
 
-const isProduction = import.meta.env.PROD;
-const serverURL = isProduction 
-  ? `https://${window.location.hostname}` 
-  : `http://${window.location.hostname}:3001`;
-
+const serverURL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:3001`;
 const socket: Socket = io(serverURL);
 
 function App() {
