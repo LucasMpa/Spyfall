@@ -8,8 +8,12 @@ import { CardGame } from '@/features/CardGame';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getPersistedNameOnLocalStorage } from './utils/storageActions';
 
-const serverIP = window.location.hostname;
-const socket: Socket = io(`http://${serverIP}:3001`);
+const isProduction = import.meta.env.PROD;
+const serverURL = isProduction 
+  ? `https://${window.location.hostname}` 
+  : `http://${window.location.hostname}:3001`;
+
+const socket: Socket = io(serverURL);
 
 function App() {
   const [username, setUsername] = useState(getPersistedNameOnLocalStorage() || '');
