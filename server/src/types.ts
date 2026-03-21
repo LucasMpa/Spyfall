@@ -14,6 +14,8 @@ export interface Room {
     timer?: NodeJS.Timeout;
     timeLeft?: number;
     spyUsername?: string;
+    votes: Record<string, number>;
+    voterIds: string[];
 }
 
 export interface GameInfo {

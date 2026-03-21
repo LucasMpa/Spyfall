@@ -56,7 +56,9 @@ io.on("connection", (socket: Socket) => {
             code: roomCode,
             players: [newPlayer],
             isStarted: false,
-            hostId: socket.id
+            hostId: socket.id,
+            votes: {},
+            voterIds: [],
         });
 
         socket.emit("room_created", roomCode);
@@ -103,7 +105,9 @@ io.on("connection", (socket: Socket) => {
         }
 
         room.isStarted = true;
-        room.timeLeft = 15;
+        room.timeLeft = 480;
+        room.votes = {};
+        room.voterIds = [];
 
         const assignments = setupGame(room.players);
 
@@ -136,6 +140,33 @@ io.on("connection", (socket: Socket) => {
         }, 1000);
 
         console.log(`Missão iniciada na sala: ${roomCode}`);
+    });
+
+    socket.on("cast_vote", ({ roomCode, targetId }: { roomCode: string; targetId: string }) => {
+        const room = rooms.get(roomCode);
+        if (!room || !room.isStarted) return;
+        if (room.voterIds.includes(socket.id)) return;
+        if (targetId === socket.id) return;
+
+        room.voterIds.push(socket.id);
+        room.votes[targetId] = (room.votes[targetId] || 0) + 1;
+
+        io.to(roomCode).emit("vote_update", room.votes);
+
+        const threshold = Math.ceil(room.players.length / 2);
+        if (room.votes[targetId] >= threshold) {
+            if (room.timer) clearInterval(room.timer);
+            room.isStarted = false;
+
+            const votedPlayer = room.players.find(p => p.id === targetId);
+            const playersWin = votedPlayer?.username === room.spyUsername;
+
+            io.to(roomCode).emit("vote_result", {
+                votedUsername: votedPlayer?.username,
+                spyUsername: room.spyUsername,
+                playersWin,
+            });
+        }
     });
 
     socket.on("disconnect", () => {

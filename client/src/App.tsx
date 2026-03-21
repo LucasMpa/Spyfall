@@ -20,6 +20,8 @@ function App() {
   const [isHost, setIsHost] = useState(false);
   const [seconds, setSeconds] = useState(480);
   const [spyUsername, setSpyUsername] = useState<string | undefined>(undefined);
+  const [votes, setVotes] = useState<Record<string, number>>({});
+  const [voteResult, setVoteResult] = useState<{ votedUsername: string; spyUsername: string; playersWin: boolean } | undefined>(undefined);
   const { urlRoomCode } = useParams();
   const navigate = useNavigate();
   const hasJoined = useRef(false)
@@ -48,6 +50,10 @@ function App() {
     socket.emit("start_game", roomCode);
   };
 
+  const castVote = (playerId: string) => {
+    socket.emit("cast_vote", { roomCode, targetId: playerId });
+  };
+
  const copyGameLink = () => {
     const fullLink = window.location.href;
     navigator.clipboard.writeText(fullLink)
@@ -59,6 +65,9 @@ const onBack = () => {
   setIsJoined(false);
   setIsHost(false);
   setPlayers([]);
+  setVoteResult(undefined);
+  setVotes({});
+  setSpyUsername(undefined);
   socket.emit("leave_room", roomCode);
   navigate("/");
 };
@@ -101,6 +110,14 @@ const onBack = () => {
       setSpyUsername(spy);
     });
 
+    socket.on("vote_update", (newVotes: Record<string, number>) => {
+      setVotes(newVotes);
+    });
+
+    socket.on("vote_result", (result: { votedUsername: string; spyUsername: string; playersWin: boolean }) => {
+      setVoteResult(result);
+    });
+
     return () => {
       socket.off("room_created");
       socket.off("room_joined");
@@ -109,6 +126,8 @@ const onBack = () => {
       socket.off("error_message");
       socket.off("timer_update");
       socket.off("game_over");
+      socket.off("vote_update");
+      socket.off("vote_result");
     };
   }, []);
 
@@ -151,7 +170,11 @@ useEffect(() => {
           onBack={onBack}
           seconds={seconds}
           players={players}
+          socketId={socket.id ?? ''}
           spyUsername={spyUsername}
+          votes={votes}
+          onVote={castVote}
+          voteResult={voteResult}
         />
       ) : (
         <Lobby

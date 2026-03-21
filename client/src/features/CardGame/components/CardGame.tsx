@@ -8,9 +8,10 @@ const formatTime = (totalSeconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, spyUsername }) => {
+const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, socketId, spyUsername, votes, onVote, voteResult }) => {
   const [eliminatedLocations, setEliminatedLocations] = useState<string[]>([]);
   const [showPlayers, setShowPlayers] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
 
   const toggleLocation = (loc: string) => {
     setEliminatedLocations(prev =>
@@ -18,7 +19,39 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, spy
     );
   };
 
+  const handleVote = (playerId: string) => {
+    if (hasVoted || playerId === socketId) return;
+    setHasVoted(true);
+    onVote(playerId);
+  };
+
   const allLocations = LOCATIONS.map((location) => location.name)
+
+  if (voteResult) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 animate-in fade-in zoom-in duration-500">
+        <div className={`w-full max-w-lg px-4 py-12 rounded-[40px] shadow-2xl border-b-8 text-center ${voteResult.playersWin ? 'bg-blue-950/30 border-blue-500' : 'bg-red-950/30 border-spy-red'}`}>
+          <p className="text-slate-400 uppercase tracking-[0.3em] text-sm mb-4">Partida Encerrada</p>
+          <h1 className={`text-5xl font-black uppercase mb-8 ${voteResult.playersWin ? 'text-blue-400' : 'text-spy-red'}`}>
+            {voteResult.playersWin ? 'Funcionários vencem!' : 'Espião vence!'}
+          </h1>
+          <div className="bg-slate-950/50 p-6 rounded-2xl border border-white/5 mb-3">
+            <p className="text-xs text-slate-500 uppercase mb-1">Jogador votado</p>
+            <h3 className="text-2xl font-bold">{voteResult.votedUsername}</h3>
+          </div>
+          {!voteResult.playersWin && (
+            <div className="bg-slate-950/50 p-6 rounded-2xl border border-white/5 mb-3">
+              <p className="text-xs text-slate-500 uppercase mb-1">Espião verdadeiro</p>
+              <h3 className="text-2xl font-bold text-spy-red">{voteResult.spyUsername}</h3>
+            </div>
+          )}
+          <button onClick={onBack} className="mt-8 text-slate-500 hover:text-white uppercase text-xs font-bold underline underline-offset-8 transition-colors cursor-pointer">
+            Encerrar Partida
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (spyUsername) {
     return (
@@ -73,13 +106,34 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, spy
               </span>
             </div>
             <ul className="space-y-2">
-              {players.map((player) => (
-                <li key={player.id} className="flex items-center gap-3 bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3">
-                  <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
-                  <span className="text-slate-200 text-sm font-medium truncate">{player.username}</span>
-                </li>
-              ))}
+              {players.map((player) => {
+                const voteCount = votes[player.id] || 0;
+                const isSelf = player.id === socketId;
+                return (
+                  <li key={player.id} className="flex items-center gap-3 bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3">
+                    <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                    <span className="text-slate-200 text-sm font-medium truncate flex-1">{player.username}</span>
+                    {voteCount > 0 && (
+                      <span className="text-xs font-bold text-spy-red bg-red-950/40 border border-spy-red/30 rounded-full px-2 py-0.5 shrink-0">
+                        {voteCount}
+                      </span>
+                    )}
+                    {!isSelf && (
+                      <button
+                        onClick={() => handleVote(player.id)}
+                        disabled={hasVoted}
+                        className="shrink-0 px-3 py-1 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed bg-spy-red/20 border border-spy-red/40 text-spy-red hover:bg-spy-red/40"
+                      >
+                        Votar
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
+            {hasVoted && (
+              <p className="text-center text-xs text-slate-500 mt-4">Você já votou nesta rodada.</p>
+            )}
             <button
               onClick={() => setShowPlayers(false)}
               className="mt-6 w-full py-3 rounded-2xl bg-slate-800 border border-slate-700 hover:bg-slate-700 hover:border-slate-500 active:scale-95 transition-all cursor-pointer text-sm font-bold text-slate-300 hover:text-white"
@@ -96,7 +150,7 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, spy
         </h1>
         <div className="mb-8">
           <p className="text-[10px] text-slate-500 uppercase tracking-[0.2em] font-bold mt-1">Tempo de Missão</p>
-          <div className={`text-5xl font-mono font-black tracking-tighter ${seconds < 60 ? 'text-spy-red animate-pulse' : 'text-white'}`}>
+          <div className={`text-5xl font-mono font-black tracking-tighter ${seconds <= 5 ? 'text-spy-red animate-pulse' : 'text-white'}`}>
             {formatTime(seconds)}
           </div>
         </div>
