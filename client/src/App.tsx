@@ -78,6 +78,14 @@ const onBack = () => {
   navigate("/");
 };
 
+const onReturnToLobby = () => {
+  setGameData(null);
+  setVoteResult(undefined);
+  setSpyGuessResult(undefined);
+  setVotes({});
+  setSpyUsername(undefined);
+};
+
    useEffect(() => {
     if (urlRoomCode) {
       setRoomCode(urlRoomCode.toUpperCase());
@@ -179,6 +187,7 @@ useEffect(() => {
         <CardGame
           data={gameData}
           onBack={onBack}
+          onReturnToLobby={onReturnToLobby}
           seconds={seconds}
           players={players}
           socketId={socket.id ?? ''}

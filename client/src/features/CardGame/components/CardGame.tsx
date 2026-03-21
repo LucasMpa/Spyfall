@@ -8,7 +8,7 @@ const formatTime = (totalSeconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, socketId, spyUsername, votes, onVote, voteResult, spyGuessResult, onSpyGuess }) => {
+const CardGame: React.FC<CardGameProps> = ({ data, onBack, onReturnToLobby, seconds, players, socketId, spyUsername, votes, onVote, voteResult, spyGuessResult, onSpyGuess }) => {
   const [eliminatedLocations, setEliminatedLocations] = useState<string[]>([]);
   const [showPlayers, setShowPlayers] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
@@ -54,9 +54,14 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, soc
             <p className="text-xs text-slate-500 uppercase mb-1">O espião era</p>
             <h3 className="text-2xl font-bold text-spy-red">{spyGuessResult.spyUsername}</h3>
           </div>
-          <button onClick={onBack} className="mt-8 text-slate-500 hover:text-white uppercase text-xs font-bold underline underline-offset-8 transition-colors cursor-pointer">
-            Encerrar Partida
-          </button>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <button onClick={onReturnToLobby} className="px-6 py-2 rounded-2xl bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-slate-400 active:scale-95 transition-all cursor-pointer text-sm font-bold text-slate-200 hover:text-white">
+              Continuar no lobby
+            </button>
+            <button onClick={onBack} className="text-slate-500 hover:text-white uppercase text-xs font-bold underline underline-offset-8 transition-colors cursor-pointer">
+              Encerrar Partida
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -80,9 +85,14 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, soc
               <h3 className="text-2xl font-bold text-spy-red">{voteResult.spyUsername}</h3>
             </div>
           )}
-          <button onClick={onBack} className="mt-8 text-slate-500 hover:text-white uppercase text-xs font-bold underline underline-offset-8 transition-colors cursor-pointer">
-            Encerrar Partida
-          </button>
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <button onClick={onReturnToLobby} className="px-6 py-2 rounded-2xl bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-slate-400 active:scale-95 transition-all cursor-pointer text-sm font-bold text-slate-200 hover:text-white">
+              Continuar no lobby
+            </button>
+            <button onClick={onBack} className="text-slate-500 hover:text-white uppercase text-xs font-bold underline underline-offset-8 transition-colors cursor-pointer">
+              Encerrar Partida
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -96,9 +106,14 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, soc
           <p className="text-slate-500 uppercase tracking-[0.2em] text-xs mb-2">O espião era</p>
           <h1 className="text-6xl font-black uppercase text-spy-red mb-2 break-all">{spyUsername}</h1>
           <p className="text-slate-500 text-sm mb-12">O espião venceu!</p>
-          <button onClick={onBack} className="text-slate-500 hover:text-white uppercase text-xs font-bold underline underline-offset-8 transition-colors cursor-pointer">
-            Encerrar Partida
-          </button>
+          <div className="flex flex-col items-center gap-3">
+            <button onClick={onReturnToLobby} className="px-6 py-2 rounded-2xl bg-slate-800 border border-slate-600 hover:bg-slate-700 hover:border-slate-400 active:scale-95 transition-all cursor-pointer text-sm font-bold text-slate-200 hover:text-white">
+              Continuar no lobby
+            </button>
+            <button onClick={onBack} className="text-slate-500 hover:text-white uppercase text-xs font-bold underline underline-offset-8 transition-colors cursor-pointer">
+              Encerrar Partida
+            </button>
+          </div>
         </div>
       </div>
     );

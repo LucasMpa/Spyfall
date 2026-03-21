@@ -17,6 +17,7 @@ interface SpyGuessResult {
 interface CardGameProps {
     data: GameInfo,
     onBack: () => void;
+    onReturnToLobby: () => void;
     seconds: number;
     players: Player[];
     socketId: string;
