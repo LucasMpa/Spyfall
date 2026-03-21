@@ -8,15 +8,24 @@ const formatTime = (totalSeconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, socketId, spyUsername, votes, onVote, voteResult }) => {
+const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, socketId, spyUsername, votes, onVote, voteResult, spyGuessResult, onSpyGuess }) => {
   const [eliminatedLocations, setEliminatedLocations] = useState<string[]>([]);
   const [showPlayers, setShowPlayers] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
 
+  const allLocations = LOCATIONS.map((location) => location.name);
+
   const toggleLocation = (loc: string) => {
-    setEliminatedLocations(prev =>
-      prev.includes(loc) ? prev.filter(l => l !== loc) : [...prev, loc]
-    );
+    const newEliminated = eliminatedLocations.includes(loc)
+      ? eliminatedLocations.filter(l => l !== loc)
+      : [...eliminatedLocations, loc];
+
+    setEliminatedLocations(newEliminated);
+
+    const remaining = allLocations.filter(l => !newEliminated.includes(l));
+    if (data.isSpy && remaining.length === 1) {
+      onSpyGuess(remaining[0]!);
+    }
   };
 
   const handleVote = (playerId: string) => {
@@ -25,7 +34,33 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, soc
     onVote(playerId);
   };
 
-  const allLocations = LOCATIONS.map((location) => location.name)
+  if (spyGuessResult) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 animate-in fade-in zoom-in duration-500">
+        <div className={`w-full max-w-lg px-4 py-12 rounded-[40px] shadow-2xl border-b-8 text-center ${spyGuessResult.spyWins ? 'bg-red-950/30 border-spy-red' : 'bg-blue-950/30 border-blue-500'}`}>
+          <p className="text-slate-400 uppercase tracking-[0.3em] text-sm mb-4">Partida Encerrada</p>
+          <h1 className={`text-5xl font-black uppercase mb-8 ${spyGuessResult.spyWins ? 'text-spy-red' : 'text-blue-400'}`}>
+            {spyGuessResult.spyWins ? 'Espião vence!' : 'Funcionários vencem!'}
+          </h1>
+          <div className="bg-slate-950/50 p-6 rounded-2xl border border-white/5 mb-3">
+            <p className="text-xs text-slate-500 uppercase mb-1">Palpite do espião</p>
+            <h3 className={`text-2xl font-bold ${spyGuessResult.spyWins ? 'text-spy-red' : 'text-slate-300'}`}>{spyGuessResult.guessedLocation}</h3>
+          </div>
+          <div className="bg-slate-950/50 p-6 rounded-2xl border border-white/5 mb-3">
+            <p className="text-xs text-slate-500 uppercase mb-1">Local verdadeiro</p>
+            <h3 className="text-2xl font-bold text-blue-400">{spyGuessResult.actualLocation}</h3>
+          </div>
+          <div className="bg-slate-950/50 p-6 rounded-2xl border border-white/5 mb-3">
+            <p className="text-xs text-slate-500 uppercase mb-1">O espião era</p>
+            <h3 className="text-2xl font-bold text-spy-red">{spyGuessResult.spyUsername}</h3>
+          </div>
+          <button onClick={onBack} className="mt-8 text-slate-500 hover:text-white uppercase text-xs font-bold underline underline-offset-8 transition-colors cursor-pointer">
+            Encerrar Partida
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (voteResult) {
     return (
@@ -183,7 +218,7 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, soc
           </div>
 
           <p className="text-[10px] text-slate-600 mt-4 text-center italic">
-            Toque em um local para eliminá-lo das suas suspeitas.
+            Toque em um local para eliminá-lo. O último restante será seu palpite final.
           </p>
         </div>
         }

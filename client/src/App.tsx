@@ -22,6 +22,7 @@ function App() {
   const [spyUsername, setSpyUsername] = useState<string | undefined>(undefined);
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [voteResult, setVoteResult] = useState<{ votedUsername: string; spyUsername: string; playersWin: boolean } | undefined>(undefined);
+  const [spyGuessResult, setSpyGuessResult] = useState<{ spyWins: boolean; guessedLocation: string; actualLocation: string; spyUsername: string } | undefined>(undefined);
   const { urlRoomCode } = useParams();
   const navigate = useNavigate();
   const hasJoined = useRef(false)
@@ -54,6 +55,10 @@ function App() {
     socket.emit("cast_vote", { roomCode, targetId: playerId });
   };
 
+  const spyGuess = (location: string) => {
+    socket.emit("spy_guess", { roomCode, guessedLocation: location });
+  };
+
  const copyGameLink = () => {
     const fullLink = window.location.href;
     navigator.clipboard.writeText(fullLink)
@@ -66,6 +71,7 @@ const onBack = () => {
   setIsHost(false);
   setPlayers([]);
   setVoteResult(undefined);
+  setSpyGuessResult(undefined);
   setVotes({});
   setSpyUsername(undefined);
   socket.emit("leave_room", roomCode);
@@ -118,6 +124,10 @@ const onBack = () => {
       setVoteResult(result);
     });
 
+    socket.on("spy_guess_result", (result: { spyWins: boolean; guessedLocation: string; actualLocation: string; spyUsername: string }) => {
+      setSpyGuessResult(result);
+    });
+
     return () => {
       socket.off("room_created");
       socket.off("room_joined");
@@ -128,6 +138,7 @@ const onBack = () => {
       socket.off("game_over");
       socket.off("vote_update");
       socket.off("vote_result");
+      socket.off("spy_guess_result");
     };
   }, []);
 
@@ -175,6 +186,8 @@ useEffect(() => {
           votes={votes}
           onVote={castVote}
           voteResult={voteResult}
+          spyGuessResult={spyGuessResult}
+          onSpyGuess={spyGuess}
         />
       ) : (
         <Lobby

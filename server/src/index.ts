@@ -109,7 +109,8 @@ io.on("connection", (socket: Socket) => {
         room.votes = {};
         room.voterIds = [];
 
-        const assignments = setupGame(room.players);
+        const { assignments, locationName } = setupGame(room.players);
+        room.location = locationName;
 
         room.players.forEach((player) => {
             const info = assignments.get(player.id);
@@ -167,6 +168,23 @@ io.on("connection", (socket: Socket) => {
                 playersWin,
             });
         }
+    });
+
+    socket.on("spy_guess", ({ roomCode, guessedLocation }: { roomCode: string; guessedLocation: string }) => {
+        const room = rooms.get(roomCode);
+        if (!room || !room.isStarted) return;
+
+        const spyWins = guessedLocation === room.location;
+
+        if (room.timer) clearInterval(room.timer);
+        room.isStarted = false;
+
+        io.to(roomCode).emit("spy_guess_result", {
+            spyWins,
+            guessedLocation,
+            actualLocation: room.location,
+            spyUsername: room.spyUsername,
+        });
     });
 
     socket.on("disconnect", () => {

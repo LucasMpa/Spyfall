@@ -7,6 +7,13 @@ interface VoteResult {
     playersWin: boolean;
 }
 
+interface SpyGuessResult {
+    spyWins: boolean;
+    guessedLocation: string;
+    actualLocation: string;
+    spyUsername: string;
+}
+
 interface CardGameProps {
     data: GameInfo,
     onBack: () => void;
@@ -17,6 +24,8 @@ interface CardGameProps {
     votes: Record<string, number>;
     onVote: (playerId: string) => void;
     voteResult?: VoteResult;
+    spyGuessResult?: SpyGuessResult;
+    onSpyGuess: (location: string) => void;
 }
 
-export { CardGameProps, VoteResult }
+export { CardGameProps, VoteResult, SpyGuessResult }
