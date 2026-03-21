@@ -144,6 +144,7 @@ useEffect(() => {
           data={gameData}
           onBack={onBack}
           seconds={seconds}
+          players={players}
         />
       ) : (
         <Lobby
