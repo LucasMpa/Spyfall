@@ -8,8 +8,9 @@ const formatTime = (totalSeconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds }) => {
+const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players }) => {
   const [eliminatedLocations, setEliminatedLocations] = useState<string[]>([]);
+  const [showPlayers, setShowPlayers] = useState(false);
 
   const toggleLocation = (loc: string) => {
     setEliminatedLocations(prev =>
@@ -21,6 +22,57 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds }) => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 animate-in fade-in zoom-in duration-500">
+
+      {/* Players button */}
+      <button
+        onClick={() => setShowPlayers(true)}
+        className="fixed top-4 right-4 z-50 flex items-center justify-center w-12 h-12 rounded-full bg-slate-800 border border-slate-700 hover:border-slate-500 transition-colors cursor-pointer shadow-lg"
+        aria-label="Ver jogadores"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+        <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-spy-red text-white text-[10px] font-bold flex items-center justify-center">
+          {players.length}
+        </span>
+      </button>
+
+      {/* Players modal */}
+      {showPlayers && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          onClick={() => setShowPlayers(false)}
+        >
+          <div
+            className="w-full max-w-sm mx-4 bg-slate-900 border border-slate-700 rounded-3xl p-6 shadow-2xl animate-in fade-in zoom-in duration-200"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">Jogadores na Partida</h2>
+              <span className="text-xs font-bold text-spy-red bg-red-950/40 border border-spy-red/30 rounded-full px-2 py-0.5">
+                {players.length}
+              </span>
+            </div>
+            <ul className="space-y-2">
+              {players.map((player) => (
+                <li key={player.id} className="flex items-center gap-3 bg-slate-800/50 border border-slate-700/50 rounded-xl px-4 py-3">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 shrink-0" />
+                  <span className="text-slate-200 text-sm font-medium truncate">{player.username}</span>
+                </li>
+              ))}
+            </ul>
+            <button
+              onClick={() => setShowPlayers(false)}
+              className="mt-6 w-full py-3 rounded-2xl bg-slate-800 border border-slate-700 hover:bg-slate-700 hover:border-slate-500 active:scale-95 transition-all cursor-pointer text-sm font-bold text-slate-300 hover:text-white"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      )}
       <div className={`w-full max-w-lg px-4 py-8 rounded-[40px] shadow-2xl border-b-8 text-center ${data.isSpy ? 'bg-red-950/30 border-spy-red' : 'bg-blue-950/30 border-blue-500'}`}>
         <p className="text-slate-400 uppercase tracking-[0.3em] text-sm mb-2">Sua Identidade</p>
         <h1 className={`text-6xl font-black uppercase mb-8 ${data.isSpy ? 'text-spy-red' : 'text-blue-400'}`}>
