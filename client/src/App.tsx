@@ -19,6 +19,7 @@ function App() {
   const [isJoined, setIsJoined] = useState(false);
   const [isHost, setIsHost] = useState(false);
   const [seconds, setSeconds] = useState(480);
+  const [spyUsername, setSpyUsername] = useState<string | undefined>(undefined);
   const { urlRoomCode } = useParams();
   const navigate = useNavigate();
   const hasJoined = useRef(false)
@@ -96,6 +97,10 @@ const onBack = () => {
       setSeconds(time);
     });
 
+    socket.on("game_over", ({ spyUsername: spy }: { spyUsername: string }) => {
+      setSpyUsername(spy);
+    });
+
     return () => {
       socket.off("room_created");
       socket.off("room_joined");
@@ -103,6 +108,7 @@ const onBack = () => {
       socket.off("game_info");
       socket.off("error_message");
       socket.off("timer_update");
+      socket.off("game_over");
     };
   }, []);
 
@@ -145,6 +151,7 @@ useEffect(() => {
           onBack={onBack}
           seconds={seconds}
           players={players}
+          spyUsername={spyUsername}
         />
       ) : (
         <Lobby

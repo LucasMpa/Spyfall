@@ -6,6 +6,7 @@ interface CardGameProps {
     onBack: () => void;
     seconds: number;
     players: Player[];
+    spyUsername?: string;
 }
 
 export { CardGameProps }

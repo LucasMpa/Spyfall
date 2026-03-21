@@ -17,8 +17,6 @@ const io = new Server(httpServer, {
 });
 
 const rooms = new Map<string, Room>();
-let timeLeft = 480;
-let timerInterval: NodeJS.Timeout;
 
 io.on("connection", (socket: Socket) => {
     socket.on("join_room", ({ roomCode, username }: { roomCode: string, username: string }) => {
@@ -105,13 +103,14 @@ io.on("connection", (socket: Socket) => {
         }
 
         room.isStarted = true;
-        room.timeLeft = 480;
+        room.timeLeft = 15;
 
         const assignments = setupGame(room.players);
 
         room.players.forEach((player) => {
             const info = assignments.get(player.id);
             if (info) {
+                if (info.isSpy) room.spyUsername = player.username;
                 io.to(player.id).emit("game_info", info);
             }
         });
@@ -131,7 +130,7 @@ io.on("connection", (socket: Socket) => {
                 if (room.timeLeft <= 0) {
                     if (room.timer) clearInterval(room.timer);
                     room.isStarted = false;
-                    io.to(roomCode).emit("game_over", "O tempo acabou! O espião venceu ou deve ser revelado.");
+                    io.to(roomCode).emit("game_over", { spyUsername: room.spyUsername });
                 }
             }
         }, 1000);

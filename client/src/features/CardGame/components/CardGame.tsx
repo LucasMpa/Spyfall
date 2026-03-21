@@ -8,7 +8,7 @@ const formatTime = (totalSeconds: number) => {
   return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 };
 
-const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players }) => {
+const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players, spyUsername }) => {
   const [eliminatedLocations, setEliminatedLocations] = useState<string[]>([]);
   const [showPlayers, setShowPlayers] = useState(false);
 
@@ -19,6 +19,22 @@ const CardGame: React.FC<CardGameProps> = ({ data, onBack, seconds, players }) =
   };
 
   const allLocations = LOCATIONS.map((location) => location.name)
+
+  if (spyUsername) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-6 animate-in fade-in zoom-in duration-500">
+        <div className="w-full max-w-lg px-4 py-12 rounded-[40px] shadow-2xl border-b-8 text-center bg-red-950/30 border-spy-red">
+          <p className="text-slate-400 uppercase tracking-[0.3em] text-sm mb-4">Tempo Esgotado</p>
+          <p className="text-slate-500 uppercase tracking-[0.2em] text-xs mb-2">O espião era</p>
+          <h1 className="text-6xl font-black uppercase text-spy-red mb-2 break-all">{spyUsername}</h1>
+          <p className="text-slate-500 text-sm mb-12">O espião venceu!</p>
+          <button onClick={onBack} className="text-slate-500 hover:text-white uppercase text-xs font-bold underline underline-offset-8 transition-colors cursor-pointer">
+            Encerrar Partida
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-6 animate-in fade-in zoom-in duration-500">

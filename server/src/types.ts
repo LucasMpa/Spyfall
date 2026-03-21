@@ -13,6 +13,7 @@ export interface Room {
     hostId: string;
     timer?: NodeJS.Timeout;
     timeLeft?: number;
+    spyUsername?: string;
 }
 
 export interface GameInfo {
